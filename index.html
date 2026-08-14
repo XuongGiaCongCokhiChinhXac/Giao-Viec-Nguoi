@@ -120,7 +120,15 @@
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
     z-index: 1100; flex-direction: column; align-items: center; justify-content: center; padding: 16px;
   }
-  #qr-reader { width: 100%; max-width: 340px; border-radius: 12px; overflow: hidden; }
+  #qr-reader {
+    width: 100%; max-width: 340px; aspect-ratio: 1 / 1;
+    border-radius: 12px; overflow: hidden;
+  }
+  #qr-reader video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
   #qrOverlay .qr-hint { color: #fff; font-size: 13px; margin-top: 10px; text-align: center; }
   #qrOverlay button {
     max-width: 340px; margin-top: 14px; background: #fff; color: #1b1f27;
