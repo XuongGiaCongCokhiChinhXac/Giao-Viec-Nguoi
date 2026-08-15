@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Giao Việc Nguội</title>
 <style>
   :root {
@@ -14,6 +14,8 @@
   * { box-sizing: border-box; }
   html, body {
     height: 100%;
+    width: 100%;
+    overflow-x: hidden;
   }
   body {
     font-family: 'Segoe UI', Roboto, Arial, sans-serif;
@@ -254,6 +256,33 @@
   // ---------------------- QUÉT QR ----------------------
   let html5QrCode = null;
 
+  function xuLyKetQuaQr(decodedText) {
+    // Mã QR có dạng: "Lệnh SX | STT chi tiết | Mã số | Tên chi tiết | Số lượng"
+    // Ví dụ: "BUS.185/08 | 4 | 1006ZWZ0 | CTLK LƯỚT GIÓ | 24"
+    const parts = decodedText.split('|').map(function (p) { return p.trim(); });
+
+    if (parts.length < 5) {
+      // Không đúng định dạng mong đợi -> xử lý như cũ (cả chuỗi là LSX-STT)
+      document.getElementById('lsxStt').value = decodedText.trim();
+      traCuuLsxStt(decodedText.trim());
+      return;
+    }
+
+    const lenhSX = parts[0];
+    const sttChiTiet = parts[1];
+    const soLuong = parts[4];
+
+    // Ghép Lệnh SX + STT chi tiết thành LSX-STT
+    // ⚠️ Kiểm tra lại: cột LSX-STT trong sheet "ĐẦU VÀO" đang ghép bằng ký tự gì
+    // (dấu "-", ".", "_" hay không dấu...). Đổi dấu nối bên dưới cho khớp.
+    const lsxStt = lenhSX + '-' + sttChiTiet;
+
+    document.getElementById('lsxStt').value = lsxStt;
+    document.getElementById('slGiaoViec').value = soLuong;
+
+    traCuuLsxStt(lsxStt);
+  }
+
   function openQrScanner() {
     document.getElementById('qrOverlay').style.display = 'flex';
     html5QrCode = new Html5Qrcode('qr-reader');
@@ -261,9 +290,8 @@
       { facingMode: 'environment' },
       { fps: 10, qrbox: { width: 240, height: 240 } },
       function onScanSuccess(decodedText) {
-        document.getElementById('lsxStt').value = decodedText.trim();
         closeQrScanner();
-        traCuuLsxStt(decodedText.trim());
+        xuLyKetQuaQr(decodedText);
       },
       function onScanFailure() { /* bỏ qua, thử lại khung hình kế tiếp */ }
     ).catch(function (err) {
